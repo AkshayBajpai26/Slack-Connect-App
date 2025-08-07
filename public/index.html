@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Slack Connect App</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .app-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+      background: linear-gradient(to right, #ff4e50, #f9d423);
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 12px;
+      display: block;
+      color: #444;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #5b5be0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #4a4ac9;
+    }
+
+    #response {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+      color: green;
+    }
+
+    .scheduled-list {
+      margin-top: 35px;
+      padding-top: 20px;
+      border-top: 2px solid #ccc;
+    }
+
+    .scheduled-item {
+      background: #f5f9ff;
+      border-left: 5px solid #5b5be0;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .scheduled-item p {
+      margin: 6px 0;
+    }
+
+    .scheduled-item button {
+      background-color: crimson;
+      border: none;
+      padding: 8px 12px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .scheduled-item button:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-title">Slack Connect App</div>
+
+    <h2>Send a Message to Slack</h2>
+
+    <form id="slack-form">
+      <label for="message">Message:</label>
+      <input type="text" id="message" name="message" placeholder="Type your message..." required />
+
+      <label for="channel">Select Channel:</label>
+      <select id="channel" name="channel" required>
+        <option value="#social">#social</option>
+        <option value="#random">#random</option>
+      </select>
+
+      <label for="sendType">Send Type:</label>
+      <select id="sendType" name="sendType">
+        <option value="now">Send Now</option>
+        <option value="schedule">Schedule</option>
+      </select>
+
+      <label for="scheduledTime">Schedule Time (if scheduling):</label>
+      <input type="datetime-local" id="scheduledTime" name="scheduledTime" />
+
+      <button type="submit">Send</button>
+    </form>
+
+    <p id="response"></p>
+
+    <div class="scheduled-list">
+      <h3>Scheduled Messages</h3>
+      <div id="scheduledMessages"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("slack-form");
+    const responseEl = document.getElementById("response");
+    const scheduledContainer = document.getElementById("scheduledMessages");
+
+    async function fetchScheduledMessages() {
+      const res = await fetch("/scheduled-messages");
+      const messages = await res.json();
+
+      scheduledContainer.innerHTML = "";
+
+      if (messages.length === 0) {
+        scheduledContainer.innerText = "No scheduled messages.";
+        return;
+      }
+
+      messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.classList.add("scheduled-item");
+
+        div.innerHTML = `
+          <p><strong>Message:</strong> ${msg.message}</p>
+          <p><strong>Channel:</strong> ${msg.channel}</p>
+          <p><strong>Scheduled Time:</strong> ${new Date(msg.scheduledTime).toLocaleString()}</p>
+          <button onclick="cancelScheduledMessage('${msg.id}')">Cancel</button>
+        `;
+
+        scheduledContainer.appendChild(div);
+      });
+    }
+
+    async function cancelScheduledMessage(id) {
+      const res = await fetch("/cancel-scheduled-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      const result = await res.text();
+      responseEl.innerText = result;
+      fetchScheduledMessages();
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const message = document.getElementById("message").value;
+      const channel = document.getElementById("channel").value;
+      const sendType = document.getElementById("sendType").value;
+      const rawTime = document.getElementById("scheduledTime").value;
+
+      const scheduledTime = sendType === "schedule" && rawTime
+        ? new Date(rawTime).toISOString()
+        : null;
+
+      const url = sendType === "schedule" ? "/schedule-message" : "/send-message";
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, channel, scheduledTime }),
+      });
+
+      const result = await res.text();
+      responseEl.innerText = result;
+
+      if (sendType === "schedule") {
+        fetchScheduledMessages();
+      }
+
+      form.reset();
+    });
+
+    fetchScheduledMessages();
+  </script>
+</body>
+</html>
