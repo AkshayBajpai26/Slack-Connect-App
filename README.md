@@ -110,24 +110,24 @@ REDIRECT_URI=http://localhost:3000/oauth/callback</code></pre>
   
   <h3>💬 Instant Message Interface</h3>
   <img src="https://github.com/user-attachments/assets/0d542251-05df-4464-b860-264d10dbbb28" alt="Instant Message UI">
-  <p class="caption">Compose and send a message directly to a selected Slack channel.</p>
+  <p class="caption">-Compose and send a message directly to a selected Slack channel.</p>
   <p>--------------------------------------------------------------------------------------------------------------------------------</p>
 
 
   <h3>🕓 Schedule Message UI</h3>
   <img width="1920" height="1080" alt="Screenshot (29)" src="https://github.com/user-attachments/assets/3eec18ec-18c9-48ca-b3d4-c289eb7a1bd8" />
-  <p class="caption">Pick a future date and time to schedule your message.</p>
+  <p class="caption">-Pick a future date and time to schedule your message.</p>
   <p>--------------------------------------------------------------------------------------------------------------------------------</p>
   
 
   <h3>📋 View Scheduled Messages</h3>
   <img src="https://github.com/user-attachments/assets/3d9ce86a-5e8d-4b5a-953e-c68c6f52de54" alt="Scheduled Messages List">
-  <p class="caption">List of all upcoming scheduled messages with time and Slack channel.</p>
+  <p class="caption">-List of all upcoming scheduled messages with time and Slack channel.</p>
   <p>--------------------------------------------------------------------------------------------------------------------------------</p>
   
 
   <h3>🧾 Slack Channel Message History</h3>
   <img width="1920" height="1080" alt="Screenshot (30)" src="https://github.com/user-attachments/assets/1d81e922-ce1a-476a-b1f5-2c92c945f9a4" />
 
-  <p class="caption">This screenshot shows that the SlackConnectApp was able to send messages to the #social Slack channel.</p>
-<p class="caption">Messages were sent right away or planned for later, which showed that the Slack API could handle real-time integration and accurate scheduling. </p>
+  <p class="caption">-This screenshot shows that the SlackConnectApp was able to send messages to the #social Slack channel.</p>
+<p class="caption">-Messages were sent right away or planned for later, which showed that the Slack API could handle real-time integration and accurate scheduling. </p>
